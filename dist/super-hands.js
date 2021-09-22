@@ -1038,7 +1038,10 @@ module.exports = {
     // initiate physics constraint if available and not already existing
     if (this.data.usePhysics !== 'never' && this.el.body && evt.detail.hand.body && !this.constraints.has(evt.detail.hand)) {
       const newConId = Math.random().toString(36).substr(2, 9);
-      this.el.setAttribute('constraint__' + newConId, {
+      //Check if the ammo driver is being used
+      let ammoDriver = this.el.sceneEl.getAttribute('physics').driver === 'ammo';
+      //Use a different constraint component if ammo driver is present
+      return this.el.setAttribute( (ammoDriver?'ammo-constraint__':'constraint__') + newConId, {
         target: evt.detail.hand
       });
       this.constraints.set(evt.detail.hand, newConId);
@@ -1053,7 +1056,10 @@ module.exports = {
   physicsEnd: function (evt) {
     let constraintId = this.constraints.get(evt.detail.hand);
     if (constraintId) {
-      this.el.removeAttribute('constraint__' + constraintId);
+      //Check if the ammo driver is being used
+      let ammoDriver = this.el.sceneEl.getAttribute('physics').driver === 'ammo';
+      //If we are using the ammo driver, we have to remove a different constraint
+      this.el.removeAttribute( (ammoDriver?'ammo-constraint__':'constraint__') + constraintId);
       this.constraints.delete(evt.detail.hand);
     }
   },
